@@ -47,7 +47,7 @@ const genOneWeekAgoString = () => {
 };
 
 export const handler = async (event: ScheduledEvent, context: Context) => {
-  const yesterday = genYesterdayString();
+  const oneWeekAgo = genOneWeekAgoString();
 
   const response = await notionClient.databases.query({
     database_id: notionDbId,
@@ -55,7 +55,7 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
       and: [
         {
           property: "Created At",
-          date: { equals: yesterday },
+          date: { equals: oneWeekAgo } 
         },
       ],
     },
@@ -63,12 +63,14 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
 
   const pages = response.results as PageObjectResponse[];
 
-  const message = pages
+  const highlights = pages
     .filter((page) => {
       return page["properties"]["📝  Highlight"]["title"].length > 0;
     })
     .map((page) => `> ${page["properties"]["📙  Book Title"]["select"]["name"]}\n> <${page["url"]}|${extractTitleText(page)}> `)
     .join("\n\n");
+
+  const message = `*1週間前に追加されたハイライトをお届けします！*\n\n${highlights}`
 
   if (message) {
     await slackClient.chat.postMessage({
