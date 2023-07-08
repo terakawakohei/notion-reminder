@@ -1,8 +1,9 @@
-# Welcome to your CDK TypeScript project
+# Notion-Reminder
+普段のメモやBookNotionなどのコンテンツが作りっぱなしの状態になっているので，定期的にリマインドして思い出させる
 
-This is a blank project for CDK development with TypeScript.
+個人用の適当なワークスペースのチャンネルに流す
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+
 
 ## Useful commands
 

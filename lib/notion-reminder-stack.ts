@@ -7,25 +7,25 @@ export class NotionReminderStack extends cdk.Stack {
     super(scope, id, props);
 
     // Notion と Slack の認証情報等をSSMパラメーターから取得
-    const notionAuth = cdk.aws_ssm.StringParameter.valueForStringParameter(
+    const notionINPUTReminderAuth = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
-      "notionReminder-notionAuth"
+      "notionINPUTReminder-notionAuth"
     );
-    const notionDbId = cdk.aws_ssm.StringParameter.valueForStringParameter(
+    const notionINPUTReminderDbId = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
-      "notionReminder-notionDbId"
+      "notionINPUTReminder-notionDbId"
     );
     const slackBotToken = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
       "notionReminder-slackBotToken"
     );
 
-    const lambda = new cdk.aws_lambda_nodejs.NodejsFunction(this, "Fn", {
+    const lambdaForINPUT = new cdk.aws_lambda_nodejs.NodejsFunction(this, "INPUTReminderFunction", {
       runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
-      entry: "src/handler.ts",
+      entry: "src/INPUTReminderHandler.ts",
       environment: {
-        NOTION_AUTH: notionAuth,
-        NOTION_DB_ID: notionDbId,
+        NOTION_AUTH: notionINPUTReminderAuth,
+        NOTION_DB_ID: notionINPUTReminderDbId,
         SLACK_BOT_TOKEN: slackBotToken,
       },
       bundling: {
@@ -35,12 +35,13 @@ export class NotionReminderStack extends cdk.Stack {
     });
 
     // CloudWatch Events で Lambda を定期実行する
-    new cdk.aws_events.Rule(this, "Schedule", {
+    new cdk.aws_events.Rule(this, "ScheduleForINPUTReminder", {
       schedule: cdk.aws_events.Schedule.cron({
-        minute: "5",
-        hour: "3", // UTCなので日本時間だと+9時間される
+        // 21:00 JSTに実行
+        minute: "0",
+        hour: "13", // UTCなので日本時間だと+9時間される
       }),
-      targets: [new cdk.aws_events_targets.LambdaFunction(lambda)],
+      targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForINPUT)],
     });
   } // The code that defines your stack goes here
 }

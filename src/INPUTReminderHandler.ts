@@ -47,7 +47,7 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
     .filter((page) => {
       return page["properties"]["タイトル"]["title"].length > 0;
     })
-    .map((page) => `<${page["url"]}|${extractTitleText(page)}>`)
+    .map((page) => `- <${page["url"]}|${extractTitleText(page)}>`)
     .join("\n");
 
   if (message) {
