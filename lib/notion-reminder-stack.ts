@@ -7,9 +7,9 @@ export class NotionReminderStack extends cdk.Stack {
     super(scope, id, props);
 
     // Notion と Slack の認証情報等をSSMパラメーターから取得
-    const notionINPUTReminderAuth = cdk.aws_ssm.StringParameter.valueForStringParameter(
+    const notionReminderAuth = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
-      "notionINPUTReminder-notionAuth"
+      "notionReminder-notionAuth"
     );
     const notionINPUTReminderDbId = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
@@ -24,7 +24,7 @@ export class NotionReminderStack extends cdk.Stack {
       runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
       entry: "src/INPUTReminderHandler.ts",
       environment: {
-        NOTION_AUTH: notionINPUTReminderAuth,
+        NOTION_AUTH: notionReminderAuth,
         NOTION_DB_ID: notionINPUTReminderDbId,
         SLACK_BOT_TOKEN: slackBotToken,
       },
