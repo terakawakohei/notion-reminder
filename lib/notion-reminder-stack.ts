@@ -15,6 +15,10 @@ export class NotionReminderStack extends cdk.Stack {
       this,
       "notionINPUTReminder-notionDbId"
     );
+    const notionHIGHLIGHTReminderDbId = cdk.aws_ssm.StringParameter.valueForStringParameter(
+      this,
+      "notionHIGHLIGHTReminder-notionDbId"
+    );
     const slackBotToken = cdk.aws_ssm.StringParameter.valueForStringParameter(
       this,
       "notionReminder-slackBotToken"
@@ -34,14 +38,36 @@ export class NotionReminderStack extends cdk.Stack {
       timeout: cdk.Duration.seconds(29),
     });
 
+    const lambdaForHIGHLIGHT = new cdk.aws_lambda_nodejs.NodejsFunction(this, "HIGHLIGHTReminderFunction", {
+      runtime: cdk.aws_lambda.Runtime.NODEJS_18_X,
+      entry: "src/HIGHLIGHTReminderHandler.ts",
+      environment: {
+        NOTION_AUTH: notionReminderAuth,
+        NOTION_DB_ID: notionHIGHLIGHTReminderDbId,
+        SLACK_BOT_TOKEN: slackBotToken,
+      },
+      bundling: {
+        sourceMap: true,
+      },
+      timeout: cdk.Duration.seconds(29),
+    });
     // CloudWatch Events で Lambda を定期実行する
     new cdk.aws_events.Rule(this, "ScheduleForINPUTReminder", {
+      schedule: cdk.aws_events.Schedule.cron({
+        // 22:00 JSTに実行
+        minute: "0",
+        hour: "14", // UTCなので日本時間だと+9時間される
+      }),
+      targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForINPUT)],
+    });
+
+    new cdk.aws_events.Rule(this, "ScheduleForHIGHLIGHTReminder", {
       schedule: cdk.aws_events.Schedule.cron({
         // 21:00 JSTに実行
         minute: "0",
         hour: "13", // UTCなので日本時間だと+9時間される
       }),
-      targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForINPUT)],
+      targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForHIGHLIGHT)],
     });
   } // The code that defines your stack goes here
 }
