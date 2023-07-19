@@ -16,6 +16,13 @@ const extractTitleText = (page) => {
   return plainText;
 };
 
+const extractMemoText = (page) => {
+  const richTextObjects = page.properties["一言メモ"]["rich_text"];
+  const plainTextArray = richTextObjects.map((richTextObject) => richTextObject.plain_text);
+  const plainText = plainTextArray.join("");
+  return plainText;
+};
+
 const genYesterdayString = () => {
   const yesterdayJST = new Date(
     Date.now() +
@@ -26,16 +33,22 @@ const genYesterdayString = () => {
   return yesterdayJST.toISOString().split("T")[0];
 };
 
+//配列をシャッフルしてランダムな順序に並び替える
+const getRandomElements = (array, count) => {
+  const shuffled = array.sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, count);
+};
+
 export const handler = async (event: ScheduledEvent, context: Context) => {
-  const yesterday = genYesterdayString();
+  const readLaterTagID = "%5EUW~"
 
   const response = await notionClient.databases.query({
     database_id: notionDbId,
     filter: {
       and: [
         {
-          property: "Created time",
-          date: { equals: yesterday },
+          property: "タグ",
+          relation: { contains: readLaterTagID },
         },
       ],
     },
@@ -43,11 +56,19 @@ export const handler = async (event: ScheduledEvent, context: Context) => {
 
   const pages = response.results as PageObjectResponse[];
 
-  const message = pages
+  const MAX_SELECTED_PAGES = 5;
+  const selectedPages = getRandomElements(pages, Math.min(MAX_SELECTED_PAGES, pages.length));
+
+  const message = selectedPages
     .filter((page) => {
       return page["properties"]["タイトル"]["title"].length > 0;
     })
-    .map((page) => `- <${page["url"]}|${extractTitleText(page)}>`)
+    .map(
+      (page) =>
+        `> *[${page["properties"]["形式"]["select"]["name"]}]*\n> ${extractMemoText(page)}\n> <${
+          page["url"]
+        }|${extractTitleText(page)}> `
+    )
     .join("\n");
 
   if (message) {

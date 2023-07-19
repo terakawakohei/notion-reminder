@@ -5,11 +5,8 @@
 
 
 
-## Useful commands
-
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+## コマンド
+<参考:AWS CDK Toolkit README|https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk/README.md#cdk-deploy>
+* `npm run cdk deploy`   デプロイ
+* `npm run cdk diff`   リソースの変更内容を確認
+* `npm run cdk deploy -- --hotswap-fallback`   高速にデプロイ（開発用）

@@ -71,7 +71,7 @@ export class NotionReminderStack extends cdk.Stack {
       schedule: cdk.aws_events.Schedule.cron({
         // 22:00 JSTに実行
         minute: "0",
-        hour: "14", // UTCなので日本時間だと+9時間される
+        hour: "13", // UTCなので日本時間だと+9時間される
       }),
       targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForINPUT)],
     });
@@ -80,7 +80,7 @@ export class NotionReminderStack extends cdk.Stack {
       schedule: cdk.aws_events.Schedule.cron({
         // 21:00 JSTに実行
         minute: "0",
-        hour: "13", // UTCなので日本時間だと+9時間される
+        hour: "12", // UTCなので日本時間だと+9時間される
       }),
       targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForYesterdayHIGHLIGHT)],
     });
@@ -89,7 +89,7 @@ export class NotionReminderStack extends cdk.Stack {
       schedule: cdk.aws_events.Schedule.cron({
         // 21:00 JSTに実行
         minute: "0",
-        hour: "13", // UTCなので日本時間だと+9時間される
+        hour: "12", // UTCなので日本時間だと+9時間される
       }),
       targets: [new cdk.aws_events_targets.LambdaFunction(lambdaForOneweekagoHIGHLIGHT)],
     });
